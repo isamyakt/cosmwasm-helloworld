@@ -20,6 +20,16 @@ pub fn query(_deps: Deps, _env: Env, msg: QueryMsg) -> StdResult<Binary> {
     }
 }
 
+#[allow(dead_code)]
+pub fn execute(
+    _deps: DepsMut,
+    _env: Env,
+    _info: MessageInfo,
+    _msg: Empty
+) -> StdResult<Response> {
+    unimplemented!()
+}
+
 mod query {
     use super::*;
 
@@ -35,30 +45,38 @@ mod query {
 
 #[cfg(test)]
 mod tests {
-    use cosmwasm_std::from_binary;
-    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
+    use cosmwasm_std::Addr;
+    use cw_multi_test::{App, ContractWrapper, Executor};
 
     use super::*;
 
     #[test]
     fn greet_query() {
-        let mut deps = mock_dependencies();
-        let env = mock_env();
+        let mut app = App::default();
 
-        instantiate(
-            deps.as_mut(), 
-            env.clone(), 
-            mock_info("sender", &[]),
-            Empty {}
-        ).unwrap();
+        let code = ContractWrapper::new(
+            execute, 
+            instantiate, 
+            query
+        );
+        
+        let code_id = app.store_code(Box::new(code));
 
-        let resp = query(
-            deps.as_ref(), 
-            env,
-            QueryMsg::Greet {}
-        ).unwrap();
+        let addr = app
+            .instantiate_contract(
+                code_id, 
+                Addr::unchecked("owner"), 
+                &Empty {}, 
+                &[], 
+                "Contract", 
+                None
+            ).unwrap();
 
-        let resp: GreetResp = from_binary(&resp).unwrap();
+        let resp: GreetResp = app
+            .wrap()
+            .query_wasm_smart(addr, &QueryMsg::Greet {})
+            .unwrap();
+
 
         assert_eq!(
             resp,
