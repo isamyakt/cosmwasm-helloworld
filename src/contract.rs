@@ -31,3 +31,20 @@ mod query {
         Ok(resp)
     }
 }
+
+
+#[cfg(test)]
+mod tests {
+    use super::*;
+
+    #[test]
+    fn greet_query() {
+        let resp = query::greet().unwrap();
+        assert_eq!(
+            resp,
+            GreetResp {
+                message: "Hello World!".to_owned()
+            }
+        );
+    }
+}
