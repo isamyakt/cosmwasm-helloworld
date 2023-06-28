@@ -36,15 +36,25 @@ mod query {
 #[cfg(test)]
 mod tests {
     use cosmwasm_std::from_binary;
-    use cosmwasm_std::testing::{mock_dependencies, mock_env};
+    use cosmwasm_std::testing::{mock_dependencies, mock_env, mock_info};
 
     use super::*;
 
     #[test]
     fn greet_query() {
+        let mut deps = mock_dependencies();
+        let env = mock_env();
+
+        instantiate(
+            deps.as_mut(), 
+            env.clone(), 
+            mock_info("sender", &[]),
+            Empty {}
+        ).unwrap();
+
         let resp = query(
-            mock_dependencies().as_ref(), 
-            mock_env(),
+            deps.as_ref(), 
+            env,
             QueryMsg::Greet {}
         ).unwrap();
 
