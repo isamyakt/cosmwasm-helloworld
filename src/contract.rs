@@ -35,11 +35,21 @@ mod query {
 
 #[cfg(test)]
 mod tests {
+    use cosmwasm_std::from_binary;
+    use cosmwasm_std::testing::{mock_dependencies, mock_env};
+
     use super::*;
 
     #[test]
     fn greet_query() {
-        let resp = query::greet().unwrap();
+        let resp = query(
+            mock_dependencies().as_ref(), 
+            mock_env(),
+            QueryMsg::Greet {}
+        ).unwrap();
+
+        let resp: GreetResp = from_binary(&resp).unwrap();
+
         assert_eq!(
             resp,
             GreetResp {
